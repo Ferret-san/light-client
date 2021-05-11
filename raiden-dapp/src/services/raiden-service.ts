@@ -6,14 +6,13 @@ import asyncPool from 'tiny-async-pool';
 import type Router from 'vue-router';
 import type { Store } from 'vuex';
 
-import type { ChangeEvent, RaidenPaths, RaidenPFS } from 'raiden-ts';
+import type { ChangeEvent, RaidenPaths, RaidenPFS} from 'raiden-ts';
 import { Capabilities, EventTypes, PfsMode, Raiden } from 'raiden-ts';
 
 import i18n from '@/i18n';
 import type { Progress, Token } from '@/model/types';
 import { RouteNames } from '@/router/route-names';
 import type { Configuration } from '@/services/config-provider';
-import { ConfigProvider } from '@/services/config-provider';
 import type { CombinedStoreState } from '@/store';
 import { NotificationContext } from '@/store/notifications/notification-context';
 import { NotificationImportance } from '@/store/notifications/notification-importance';
@@ -42,19 +41,26 @@ export default class RaidenService {
 
   private static async createRaiden(
     provider: providers.JsonRpcProvider | string,
-    privateKeyOrProviderAccountIndex: string | number = 0,
+    privateKeyOrProviderAccountIndex: string | number = 4,
     stateBackup?: string,
     subkey?: true,
   ): Promise<Raiden> {
     try {
-      const contracts = await ConfigProvider.contracts();
+      const contracts = {
+        TokenNetworkRegistry: {address: "0x018c1b0a0149fD2Af4D3384d1Cc1884d082a6BB5", number: 59585},
+        ServiceRegistry: {address: "0x16CefC4bd27F00a679155761535059E59D3Eb6EE", number: 59859},
+        UserDeposit: {address: "0xD8f43e8a63E8520b4B64A7408248492be47Ee26A", number: 59860},
+        SecretRegistry: {address: "0x26AF77FAdaECd0EE0B6E846f03Af906719e34A9C", number: 59584},
+        MonitoringService: {address: "0xb23F571d1B7D477B8e30e20bB449caA43eA0AC0a", number: 59862},
+        OneToN: {address: "0x8cFE0F3C27EA34E8d2e9e489029E1927909B7012", number: 59863}
+      } as any;
       return await Raiden.create(
         provider,
         privateKeyOrProviderAccountIndex,
         {
           state: stateBackup,
         },
-        process.env.VUE_APP_UDC_ADDRESS ?? contracts,
+        process.env.VUE_APP_UDC_ADDRESS ?? (contracts as any),
         {
           pfsSafetyMargin: 1.1,
           ...(process.env.VUE_APP_PFS
